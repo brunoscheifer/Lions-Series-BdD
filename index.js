@@ -59,6 +59,67 @@ app.get("/series", async (req, res) => {
     }
 })
 
+async function attserie(id, nome, ano, genero, classificacao, diretor) {
+    try {
+        const serieatt = await Serie.findByIdAndUpdate(
+            id,
+            {nome, ano, genero, classificacao, diretor},
+            {new: true, runValidators: true}
+        )
+        return serieatt
+    } catch (erro) {
+        console.error('Não foi possivel atualizar', erro)
+        throw erro
+    }
+}
+
+app.put('/series/:id', async (req, res) => {
+    try{
+        const { id } = req.params
+        const {nome, ano, genero, classificacao, diretor} = req.body
+        const serieatt = await attserie(
+            id,
+            nome, 
+            ano, 
+            genero, 
+            classificacao, 
+            diretor
+        )
+        if(serieatt) {
+            res.status(200).json({mensagem: 'Serie atualizada', serie: serieatt})
+        } else {
+            res.status(404).json('Série não encontrada')
+        }
+    } catch(erro) {
+        res.status(500).json({mensagem: 'Não foi possivel atualizar', erro: erro.message})
+    }
+})
+
+async function delserie(id) {
+    try {
+        const seriedel = await Serie.findByIdAndDelete(id)
+        return seriedel
+    } catch(erro) {
+        console.error('Não foi possivel atualizar', erro)
+        throw erro
+    }
+}
+
+app.delete('/series/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        const seriedel = await delserie(id)
+
+        if(seriedel) {
+            res.status(200).json({mensagem: 'Deletado com sucesso', serie: seriedel})
+        } else {
+            res.status(404).json('Serie não encontrada')
+        }
+    } catch(erro) {
+        res.status(500).json({mensagem: 'Não foiu possivel deletar', erro: erro.message})
+    }
+})
+
     const port = 3000
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`)
